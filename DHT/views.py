@@ -17,3 +17,6 @@ def latest_json(request):
         "humidity":    last["hum"],
         "timestamp":   last["dt"].isoformat()
     })
+
+def all_data(request):
+    return render(request, "all.html")

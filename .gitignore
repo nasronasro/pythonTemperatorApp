@@ -1,0 +1,36 @@
+# .gitignore
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+.env
+.env.local
+.env.*.local
+
+# Media / Static (uploaded files)
+media/
+staticfiles/
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets & Config
+config/settings/local.py
+config/settings/production.py
