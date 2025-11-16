@@ -51,6 +51,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "ahfir49481+apiPy@gmail.com" # ⚠️ ton adresse GmailEMAIL_HOST_PASSWORD = "bpsj egsx fyyy pxbo" # pas ton vrai mot de passe !TELEGRAM_BOT_TOKEN = "8224806202:AAEC3vZcc2mHC-EHEYtbDR9tpQGfzNE6ugI" # ← token BotFatherTELEGRAM_CHAT_ID = "1242839034" # ← id utilisateur/groupe
+EMAIL_HOST_PASSWORD = "tehc vryz pjlp nmrj"
+
+
 ROOT_URLCONF = 'projet.urls'
 
 TEMPLATES = [
