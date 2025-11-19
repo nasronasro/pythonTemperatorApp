@@ -2,37 +2,56 @@
 const API_URL = "/api";
 const refreshBtn = document.getElementById('refresh');
 const spinner = refreshBtn.querySelector('.spinner-border');
+const rangeButtons = document.querySelectorAll('[data-range]');
 
 let isFetching = false;
 let tempChart, humChart;
+let currentRange = 'today'; // default
 
-// Initialize Charts
+// Time helpers (Morocco time)
+const now = () => new Date().toLocaleString('sv', { timeZone: 'Africa/Casablanca' });
+const startOfDay = () => new Date(now().split(' ')[0] + ' 00:00:00');
+const daysAgo = (days) => {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d;
+};
+
+function filterByRange(records, range) {
+  const cutoff = range === 'today' ? startOfDay() :
+                 range === '7days' ? daysAgo(7) :
+                 daysAgo(30);
+
+  return records.filter(r => new Date(r.dt) >= cutoff);
+}
+
+function formatTime(iso) {
+  const date = new Date(iso);
+  const options = { timeZone: 'Africa/Casablanca' };
+  if (currentRange === 'today') {
+    return date.toLocaleTimeString('fr-MA', { ...options, hour: '2-digit', minute: '2-digit' });
+  }
+  return date.toLocaleString('fr-MA', { ...options, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 function initCharts() {
   const tempCtx = document.getElementById('tempChart').getContext('2d');
   const humCtx = document.getElementById('humChart').getContext('2d');
 
   tempChart = new Chart(tempCtx, {
     type: 'line',
-    data: { labels: [], datasets: [{ label: 'Température', data: [], borderColor: '#dc3545', backgroundColor: 'rgba(220,53,69,0.1)', fill: true, tension: 0.3 }] },
-    options: { responsive: true, scales: { x: { display: true }, y: { beginAtZero: false } }, plugins: { legend: { display: false } } }
+    data: { labels: [], datasets: [{ label: 'Temp', data: [], borderColor: '#dc3545', backgroundColor: 'rgba(220,53,69,0.1)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, scales: { x: { ticks: { maxTicksLimit: 10 } }, y: { beginAtZero: false } }, plugins: { legend: { display: false } } }
   });
 
   humChart = new Chart(humCtx, {
     type: 'line',
-    data: { labels: [], datasets: [{ label: 'Humidité', data: [], borderColor: '#0dcaf0', backgroundColor: 'rgba(13,202,240,0.1)', fill: true, tension: 0.3 }] },
-    options: { responsive: true, scales: { x: { display: true }, y: { beginAtZero: true, suggestedMax: 100 } }, plugins: { legend: { display: false } } }
+    data: { labels: [], datasets: [{ label: 'Hum', data: [], borderColor: '#0dcaf0', backgroundColor: 'rgba(13,202,240,0.1)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, scales: { x: { ticks: { maxTicksLimit: 10 } }, y: { beginAtZero: true, suggestedMax: 100 } }, plugins: { legend: { display: false } } }
   });
 }
 
-function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('fr-MA', {
-    timeZone: 'Africa/Casablanca',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-async function loadAll() {
+async function loadData() {
   if (isFetching) return;
   isFetching = true;
 
@@ -44,35 +63,28 @@ async function loadAll() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     let payload = await res.json();
 
-    // Handle your exact format: data.data
     let data = payload;
     if (payload && payload.data) data = payload.data;
 
     let records = [];
+    if (data && Array.isArray(data.results)) records = data.results;
+    else if (Array.isArray(data)) records = data;
+    else throw new Error("Aucune donnée");
 
-    // Case 1: { results: [...] }
-    if (data && Array.isArray(data.results)) {
-      records = data.results;
-    }
-    // Case 2: direct array
-    else if (Array.isArray(data)) {
-      records = data;
-    }
-    else {
-      throw new Error("Aucune donnée valide trouvée");
-    }
+    // Sort by date
+    records.sort((a, b) => new Date(a.dt) - new Date(b.dt));
 
-    if (records.length === 0) {
-      alert("Aucune donnée à afficher");
+    // Filter by selected range
+    const filtered = filterByRange(records, currentRange);
+
+    if (filtered.length === 0) {
+      alert(`Aucune donnée pour: ${currentRange === 'today' ? "aujourd'hui" : currentRange === '7days' ? 'les 7 derniers jours' : 'les 30 derniers jours'}`);
       return;
     }
 
-    // Sort by date (newest last)
-    records.sort((a, b) => new Date(a.dt) - new Date(b.dt));
-
-    const labels = records.map(r => formatTime(r.dt));
-    const temps = records.map(r => parseFloat(r.temp).toFixed(1));
-    const hums = records.map(r => parseFloat(r.hum).toFixed(1));
+    const labels = filtered.map(r => formatTime(r.dt));
+    const temps = filtered.map(r => parseFloat(r.temp).toFixed(1));
+    const hums = filtered.map(r => parseFloat(r.hum).toFixed(1));
 
     // Update charts
     tempChart.data.labels = labels;
@@ -93,17 +105,27 @@ async function loadAll() {
   }
 }
 
+// Button handlers
+rangeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    rangeButtons.forEach(b => b.classList.remove('btn-primary', 'active'));
+    rangeButtons.forEach(b => b.classList.add('btn-outline-primary'));
+    btn.classList.remove('btn-outline-primary');
+    btn.classList.add('btn-primary', 'active');
+    currentRange = btn.dataset.range;
+    loadData();
+  });
+});
+
+refreshBtn.addEventListener('click', loadData);
+
 // Auto-refresh
 function startAutoRefresh() {
   initCharts();
-  loadAll();
+  loadData();
   setInterval(() => {
-    if (!document.hidden) loadAll();
+    if (!document.hidden) loadData();
   }, 30000);
 }
 
-// Events
-refreshBtn.addEventListener('click', loadAll);
-
-// Start
 startAutoRefresh();

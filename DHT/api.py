@@ -21,19 +21,19 @@ class Dhtviews(generics.CreateAPIView):
         instance = serializer.save()
         temp = instance.temp
 
-        if temp > 25:
+        if temp > 25 :
             # 1) Email (si tu veux le garder)
             try:
                 send_mail(
                     subject="⚠️ Alerte Température élevée",
                     message=f"Nasreddine belarbi - Chayma Aissi -- La température a atteint {temp:.1f} °C à {instance.dt}.",
                     from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=["elmouss@yahoo.com"],
+                    recipient_list=["ahfir49481+apiPy@gmail.com"],
                     fail_silently=True,
                 )
             except Exception:
                 pass
 
             # 2) Telegram
-            msg = f"⚠️ Alerte DHT11: {temp:.1f} °C (>25) à {instance.dt}"
-            send_telegram(msg)
+            #msg = f"⚠️ Alerte DHT11: {temp:.1f} °C (>25) à {instance.dt}"
+            #send_telegram(msg)
