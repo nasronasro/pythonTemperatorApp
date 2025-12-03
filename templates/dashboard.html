@@ -47,9 +47,29 @@
         <div id="humValue" class="value">-- %</div>
         <div id="humTime" class="time">--</div>
     </div>
+    <!-- Carte Ajout -->
+    <div class="card">
+        <div class="header">Ajouter une mesure</div>
+
+        <form id="addForm">
+            <div style="margin-bottom:10px;">
+                <label>Température :</label><br />
+                <input id="tempInput" type="number" step="0.1" required />
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label>Humidité :</label><br />
+                <input id="humInput" type="number" step="0.1" required />
+            </div>
+
+            <button type="submit">Ajouter nouveau</button>
+            <div id="formMsg" class="time" style="margin-top:10px;"></div>
+        </form>
+    </div>
 
 </div>
 
 <script src="/static/js/dashboard.js"></script>
+<script src="/static/js/add_measure.js"></script>
 </body>
 </html>
