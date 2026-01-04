@@ -1,0 +1,19 @@
+<h1>🚨 Incident {{ incident.id }}</h1>
+
+<p><strong>Date début :</strong> {{ incident.date_debut }}</p>
+<p><strong>Date fin :</strong> {{ incident.date_fin }}</p>
+<p><strong>Statut :</strong> {{ incident.statut }}</p>
+<p><strong>Température max :</strong> {{ incident.temperature_max }} °C</p>
+
+<p><strong>Opérateur :</strong>
+{% if incident.operateur %}
+    {{ incident.operateur.username }}
+{% else %}
+    Non affecté
+{% endif %}
+</p>
+
+<h3>📝 Commentaire opérateur</h3>
+<p>{{ incident.commentaire_operateur|default:"Aucun commentaire" }}</p>
+
+<a href="{% url 'incident_list' %}">⬅️ Retour</a>

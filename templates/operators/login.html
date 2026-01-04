@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion Opérateur</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'operators/css/login.css' %}">
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Espace Opérateur</h2>
+
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+
+        <button type="submit">Se connecter</button>
+    </form>
+
+    <p id="error-message" style="color:red;"></p>
+</div>
+
+<script src="{% static 'operators/js/login.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard DHT11</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+/* ⛔ GARDER TON CSS DASHBOARD EXACT ⛔ */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to right, #f0f4f8, #d9e6f2);
+    margin: 0;
+    padding-top: 70px; /* pour navbar fixe */
+}
+
+.page {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+}
+
+.card {
+    width: 300px;
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+.header {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.header.temp { background: linear-gradient(135deg, #ff6b6b, #ff3d3d); }
+.header.hum { background: linear-gradient(135deg, #4da3ff, #007bff); }
+.header.incident { background: linear-gradient(135deg, #ffa500, #ff8c00); }
+
+.value {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.time {
+    color: #666;
+    font-size: 14px;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #555;
+}
+
+form input {
+    width: 80%;
+    padding: 8px 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+form button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #4da3ff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: #187bcd;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 NAVBAR BOOTSTRAP + UTILISATEUR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+
+        <a class="navbar-brand" href="/">
+            🌡️ IoT System
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">🏠 Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/">📋 Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/incident/">🚨 Incidents</a></li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        📊 Graphiques
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/chart/temperature/">🌡️ Température</a></li>
+                        <li><a class="dropdown-item" href="/chart/humidity/">💧 Humidité</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item"><a class="nav-link" href="/download_csv/">⬇️ Export CSV</a></li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text text-light me-3">
+                            👤 {{ user.username }}
+                        </span>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<!-- ========= PAGE ========= -->
+<div class="page">
+
+<h1>Dashboard Température & Humidité (DHT11)</h1>
+
+<div class="container">
+
+    <div class="card">
+        <div class="header temp">🌡️ Température</div>
+        <div id="tempValue" class="value">-- °C</div>
+        <div id="tempTime" class="time">--</div>
+        <a href="/chart/temperature/" class="btn">Voir Chart Température</a>
+    </div>
+
+    <div class="card">
+        <div class="header hum">💧 Humidité</div>
+        <div id="humValue" class="value">-- %</div>
+        <div id="humTime" class="time">--</div>
+        <a href="/chart/humidity/" class="btn">Voir Chart Humidité</a>
+    </div>
+
+    <div class="card">
+        <div class="header incident">⚠️ Incident</div>
+        <div id="incidentStatus">--</div>
+        <a id="incidentLink" class="btn" style="display:none;">Voir Détails</a>
+
+        <div id="incidentForm" style="display:none; margin-top:15px;">
+            <textarea id="incidentComment" placeholder="Votre commentaire" style="width:100%; height:60px"></textarea><br>
+            <label><input type="checkbox" id="incidentResolved"> Résolu</label>
+            <label><input type="checkbox" id="incidentAck"> Accusé</label><br>
+            <button id="updateIncidentBtn" class="btn">Mettre à jour</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="card" style="margin-top: 30px; width: 650px;">
+    <div class="header" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">
+        Envoyer des données MOCK
+    </div>
+    <form id="sensorForm">
+        <input type="number" step="0.1" id="tempInput" placeholder="Température (°C)" required>
+        <input type="number" step="0.1" id="humInput" placeholder="Humidité (%)" required>
+        <button type="submit">Envoyer</button>
+    </form>
+    <p id="responseMsg"></p>
+</div>
+
+</div>
+
+<script src="/static/js/send_data.js"></script>
+<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/incident.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

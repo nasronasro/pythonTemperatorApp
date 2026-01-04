@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Incident {{ incident.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+    <h2 class="mb-4 text-center">🚨 Incident {{ incident.id }}</h2>
+
+    <div class="row justify-content-center">
+
+        <!-- Card Détails Incident -->
+        <div class="col-md-8">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-gradient-warning text-white">
+                    Détails de l’incident
+                </div>
+                <div class="card-body">
+
+                    <p><strong>Date début :</strong> {{ incident.date_debut }}</p>
+
+                    <p><strong>Date fin :</strong>
+                    {% if incident.date_fin %}
+                        {{ incident.date_fin }}
+                    {% else %}
+                        — En cours
+                    {% endif %}
+                    </p>
+
+                    <p><strong>Statut :</strong>
+                    {% if incident.resolu %}
+                        <span class="badge bg-success">✅ Résolu</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">⏳ En cours</span>
+                    {% endif %}
+                    </p>
+
+                    <p><strong>Température max :</strong> {{ incident.temperature_max }} °C</p>
+
+                    <p><strong>Opérateur :</strong>
+                    {% if incident.operateur %}
+                        {{ incident.operateur.username }}
+                    {% else %}
+                        <span class="text-muted">Non affecté</span>
+                    {% endif %}
+                    </p>
+
+                    <h5 class="mt-4">📝 Commentaire opérateur</h5>
+                    <p class="p-3 bg-light rounded">
+                    {% if incident.commentaire %}
+                        {{ incident.commentaire }}
+                    {% else %}
+                        <span class="text-muted">Aucun commentaire</span>
+                    {% endif %}
+                    </p>
+
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'incident_list' %}" class="btn btn-secondary btn-lg">
+                            ⬅️ Retour
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==== Styles additionnels pour moderniser le card ==== -->
+<style>
+.card-header.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffa500, #ff8c00);
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+    text-align: center;
+}
+
+.card-body p {
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-body h5 {
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 1rem;
+    padding: 0.5em 0.75em;
+}
+
+.btn-secondary {
+    transition: 0.3s;
+}
+.btn-secondary:hover {
+    background-color: #6c757d;
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

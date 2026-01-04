@@ -1,0 +1,19 @@
+<h1>📊 Dashboard Admin</h1>
+
+<p>🌡️ Température : {{ temperature }} °C</p>
+<p>💧 Humidité : {{ humidity }} %</p>
+
+<h2>🚨 Incidents récents</h2>
+<ul>
+{% for i in incidents %}
+    <li>
+        <a href="{% url 'incident_detail' i.id %}">
+            Incident {{ i.id }} — {{ i.date_debut }}
+        </a>
+    </li>
+{% empty %}
+    <li>Aucun incident</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'incident_list' %}">📂 Tous les incidents</a>
